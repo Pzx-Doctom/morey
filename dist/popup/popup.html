@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="popup.css">
+  <title>Morey</title>
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <span class="logo">M</span>
+        <span class="title">Morey</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="globalToggle" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <!-- Current Site Section -->
+    <div class="section" id="siteSection">
+      <div class="section-title">当前站点</div>
+      <div class="site-info">
+        <div class="site-domain" id="siteDomain">-</div>
+        <div class="site-selector" id="siteSelector">
+          <span class="label">选择器:</span>
+          <span class="value" id="selectorValue">未配置</span>
+        </div>
+      </div>
+      <div class="site-actions">
+        <button class="btn btn-primary" id="btnPickElement">选择元素</button>
+        <button class="btn btn-danger" id="btnClearSite" disabled>清除配置</button>
+      </div>
+      <label class="checkbox-row" id="autoApplyRow" style="display:none">
+        <input type="checkbox" id="autoApplyCheck">
+        <span>页面加载时自动应用</span>
+      </label>
+    </div>
+
+    <!-- File Management Section -->
+    <div class="section">
+      <div class="section-title">文件管理</div>
+      <div class="file-list" id="fileList">
+        <div class="empty-hint">暂无文件，请导入</div>
+      </div>
+      <div class="file-actions">
+        <button class="btn btn-primary" id="btnImportFile">导入文件</button>
+        <button class="btn" id="btnExportFile" disabled>导出</button>
+        <input type="file" id="fileInput" accept=".md,.markdown,.txt" style="display:none" multiple>
+      </div>
+    </div>
+
+    <!-- Site Configs List -->
+    <div class="section">
+      <div class="section-title">已保存站点</div>
+      <div class="site-list" id="siteList">
+        <div class="empty-hint">暂无配置</div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <span class="shortcut">Alt+M 切换</span>
+      <span class="shortcut">Alt+Q 恢复</span>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

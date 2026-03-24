@@ -1,0 +1,48 @@
+/* content.css - Minimal styles for morey content script elements */
+/* Most UI styles are in Shadow DOM, this only covers outer elements */
+
+#morey-root {
+  position: relative;
+  min-height: 100px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+/* Rendered markdown container - inherits host styles naturally */
+.morey-rendered {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.morey-rendered h1,
+.morey-rendered h2,
+.morey-rendered h3,
+.morey-rendered h4,
+.morey-rendered h5,
+.morey-rendered h6 {
+  margin-top: 1.2em;
+  margin-bottom: 0.6em;
+}
+
+.morey-rendered p {
+  margin-bottom: 0.8em;
+}
+
+.morey-rendered ul,
+.morey-rendered ol {
+  margin-bottom: 0.8em;
+  padding-left: 2em;
+}
+
+.morey-rendered li {
+  margin-bottom: 0.3em;
+}
+
+/* Element picker overlay styles */
+#morey-picker-overlay {
+  pointer-events: none !important;
+}
+
+#morey-picker-info {
+  pointer-events: none !important;
+}

@@ -1,0 +1,17 @@
+{
+  "name": "morey",
+  "version": "1.0.0",
+  "description": "Chrome 浏览器摸鱼插件 - 在网页中嵌入 Markdown 浏览/编辑区域",
+  "private": true,
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "watch": "node esbuild.config.mjs --watch",
+    "clean": "rimraf dist"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  },
+  "dependencies": {
+    "markdown-it": "^14.1.0"
+  }
+}
