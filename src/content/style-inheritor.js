@@ -59,11 +59,16 @@ export function generatePatchCSS(styles) {
   const isDark = isColorDark(bg);
   const codeBg = isDark ? lighten(bg, 0.1) : darken(bg, 0.04);
   const borderColor = isDark ? lighten(bg, 0.2) : darken(bg, 0.1);
+  
+  // Determine code text color based on code background darkness
+  const isCodeBgDark = isColorDark(codeBg);
+  const codeColor = isCodeBgDark ? '#e0e0e0' : '#333';
 
   return `
     .morey-rendered pre,
     .morey-rendered code {
       background: ${codeBg};
+      color: ${codeColor};
       border-radius: 4px;
     }
     .morey-rendered pre {
@@ -78,6 +83,7 @@ export function generatePatchCSS(styles) {
     .morey-rendered pre code {
       padding: 0;
       background: none;
+      color: inherit;
     }
     .morey-rendered table {
       border-collapse: collapse;
