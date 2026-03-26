@@ -48,42 +48,67 @@ export function applyStyles(container, styles) {
 }
 
 /**
+ * Code style types
+ */
+export const CODE_STYLES = {
+  blend: '融合',    // Blend with page theme
+  github: 'GitHub'  // Fixed light background
+};
+
+/**
  * Generate a minimal CSS string for code blocks and tables
  * that adapts to the host page theme
+ * @param {object} styles - Extracted host styles
+ * @param {string} codeStyle - 'blend' or 'github'
  */
-export function generatePatchCSS(styles) {
+export function generatePatchCSS(styles, codeStyle = 'blend') {
   const bg = styles.backgroundColor || '#fff';
   const color = styles.color || '#333';
 
   // Determine if dark theme
   const isDark = isColorDark(bg);
-  const codeBg = isDark ? lighten(bg, 0.1) : darken(bg, 0.04);
+  const codeBg = isDark ? lighten(bg, 0.15) : darken(bg, 0.05);
   const borderColor = isDark ? lighten(bg, 0.2) : darken(bg, 0.1);
   
-  // Determine code text color based on code background darkness
-  const isCodeBgDark = isColorDark(codeBg);
-  const codeColor = isCodeBgDark ? '#e0e0e0' : '#333';
+  // Determine code text color based on code background (for blend mode)
+  const blendCodeColor = isDark ? '#e0e0e0' : '#333';
+  
+  // GitHub style: fixed light background + dark text
+  const githubCodeBg = '#f6f8fa';
+  const githubCodeColor = '#24292e';
+  const githubCodeBorder = '#e1e4e8';
+
+  // Select code block styles based on codeStyle
+  const useGithub = codeStyle === 'github';
+  const finalCodeBg = useGithub ? githubCodeBg : codeBg;
+  const finalCodeColor = useGithub ? githubCodeColor : blendCodeColor;
+  const finalCodeBorder = useGithub ? githubCodeBorder : borderColor;
 
   return `
     .morey-rendered pre,
     .morey-rendered code {
-      background: ${codeBg};
-      color: ${codeColor};
-      border-radius: 4px;
+      background: ${finalCodeBg} !important;
+      color: ${finalCodeColor} !important;
+      border-radius: ${useGithub ? '6px' : '4px'};
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Monaco, "Courier New", monospace;
     }
     .morey-rendered pre {
-      padding: 12px 16px;
+      padding: ${useGithub ? '16px' : '12px 16px'};
       overflow-x: auto;
       margin: 1em 0;
+      ${useGithub ? `border: 1px solid ${finalCodeBorder};` : ''}
+      line-height: 1.5;
     }
     .morey-rendered code {
-      padding: 2px 4px;
-      font-size: 0.9em;
+      padding: 2px 6px;
+      font-size: 0.875em;
     }
     .morey-rendered pre code {
       padding: 0;
-      background: none;
-      color: inherit;
+      background: transparent !important;
+      color: inherit !important;
+      border: none;
+      font-size: 0.9em;
     }
     .morey-rendered table {
       border-collapse: collapse;

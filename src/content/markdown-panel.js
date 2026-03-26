@@ -4,7 +4,7 @@
  */
 
 import markdownit from 'markdown-it';
-import { extractStyles, applyStyles, generatePatchCSS } from './style-inheritor.js';
+import { extractStyles, applyStyles, generatePatchCSS, CODE_STYLES } from './style-inheritor.js';
 import { getFileContent, saveFile, getFilesIndex, getSiteConfig, saveSiteConfig } from '../shared/storage.js';
 import { importFiles, setupDragDrop, exportFile } from './file-manager.js';
 
@@ -27,6 +27,8 @@ let currentContent = '';
 let hostStyles = null;
 let autoSaveTimer = null;
 let currentDomain = '';
+let currentCodeStyle = 'blend'; // 'blend' | 'github'
+let patchStyleElement = null;
 try { currentDomain = window.location.hostname; } catch (e) { /* ignore */ }
 
 /**
@@ -49,9 +51,10 @@ export async function initPanel(element, fileId) {
   moreyRoot.id = 'morey-root';
   moreyRoot.style.position = 'relative';
 
-  // Load remembered panel height or use default
+  // Load remembered panel height and code style
   const siteConfig = await getSiteConfig(currentDomain);
   const savedHeight = siteConfig?.panelHeight || '50vh';
+  currentCodeStyle = siteConfig?.codeStyle || 'blend';
   moreyRoot.style.maxHeight = savedHeight;
   moreyRoot.style.overflowY = 'auto';
 
@@ -70,9 +73,12 @@ export async function initPanel(element, fileId) {
   applyStyles(renderedContainer, hostStyles);
 
   // Add patch CSS for code blocks, tables, etc.
-  const patchStyle = document.createElement('style');
-  patchStyle.textContent = generatePatchCSS(hostStyles);
-  moreyRoot.appendChild(patchStyle);
+  patchStyleElement = document.createElement('style');
+  patchStyleElement.textContent = generatePatchCSS(hostStyles, currentCodeStyle);
+  moreyRoot.appendChild(patchStyleElement);
+
+  // Update code style button text
+  updateCodeStyleButton();
 
   // Set up drag and drop
   setupDragDrop(moreyRoot, async (fileId, fileName) => {
@@ -187,6 +193,37 @@ function updateToolbarMode(mode) {
   const editBtn = shadowRoot?.querySelector('.btn-edit');
   if (viewBtn) viewBtn.classList.toggle('active', mode === 'viewer');
   if (editBtn) editBtn.classList.toggle('active', mode === 'editor');
+}
+
+/**
+ * Update code style button text
+ */
+function updateCodeStyleButton() {
+  const btn = shadowRoot?.querySelector('.btn-code-style');
+  if (btn) {
+    btn.textContent = `代码:${CODE_STYLES[currentCodeStyle] || '融合'}`;
+  }
+}
+
+/**
+ * Toggle code block style and save preference
+ */
+async function toggleCodeStyle() {
+  // Toggle between 'blend' and 'github'
+  currentCodeStyle = currentCodeStyle === 'blend' ? 'github' : 'blend';
+  
+  // Update patch CSS
+  if (patchStyleElement && hostStyles) {
+    patchStyleElement.textContent = generatePatchCSS(hostStyles, currentCodeStyle);
+  }
+  
+  // Update button text
+  updateCodeStyleButton();
+  
+  // Save preference
+  const siteConfig = await getSiteConfig(currentDomain) || {};
+  siteConfig.codeStyle = currentCodeStyle;
+  await saveSiteConfig(currentDomain, siteConfig);
 }
 
 /**
@@ -365,6 +402,8 @@ function getShadowHTML() {
       <button class="toolbar-btn btn-import" title="导入文件">导入</button>
       <button class="toolbar-btn btn-export" title="导出文件">导出</button>
       <div class="toolbar-sep"></div>
+      <button class="toolbar-btn btn-code-style" title="切换代码块样式">代码:融合</button>
+      <div class="toolbar-sep"></div>
       <button class="toolbar-btn btn-close" title="恢复原始页面">退出</button>
     </div>
     <textarea class="morey-editor" placeholder="在此编辑 Markdown 内容..."></textarea>
@@ -410,6 +449,11 @@ function bindToolbarEvents() {
     if (currentFileId) {
       exportFile(currentFileId);
     }
+  });
+
+  // Code style toggle button
+  shadowRoot.querySelector('.btn-code-style')?.addEventListener('click', () => {
+    toggleCodeStyle();
   });
 
   // Close/restore button
